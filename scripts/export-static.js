@@ -29,11 +29,21 @@ async function buildStatic() {
 
   let html = await response.text();
 
-  // Replace all absolute /assets/ paths with relative ./assets/ for GitHub Pages subpath compatibility
-  html = html.replaceAll('/assets/', './assets/');
-  html = html.replaceAll('href="/', 'href="./');
-  html = html.replaceAll('src="/', 'src="./');
-  html = html.replaceAll('/workspace/sites/kalkulator-harga-shopee/.vinext/', './.vinext/');
+  // Get base path for GitHub Pages (e.g. /alkulator-harga-shopee/)
+  const repoName = process.env.GITHUB_REPOSITORY
+    ? `/${process.env.GITHUB_REPOSITORY.split("/")[1]}/`
+    : "/alkulator-harga-shopee/";
+
+  console.log(`Using base path: ${repoName}`);
+
+  // Replace all asset references with absolute repository base path
+  html = html.replaceAll('./assets/', `${repoName}assets/`);
+  html = html.replaceAll('/assets/', `${repoName}assets/`);
+  html = html.replaceAll('/workspace/sites/kalkulator-harga-shopee/.vinext/', `${repoName}.vinext/`);
+  html = html.replaceAll('./.vinext/', `${repoName}.vinext/`);
+  html = html.replaceAll('./manifest.json', `${repoName}manifest.json`);
+  html = html.replaceAll('./favicon.svg', `${repoName}favicon.svg`);
+  html = html.replaceAll('./sw.js', `${repoName}sw.js`);
 
   const staticDir = path.join(rootDir, "dist", "static");
   const clientDir = path.join(rootDir, "dist", "client");
