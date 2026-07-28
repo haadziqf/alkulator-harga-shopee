@@ -29,13 +29,10 @@ async function buildStatic() {
 
   let html = await response.text();
 
-  // Replace absolute paths with relative paths for GitHub Pages compatibility
+  // Replace all absolute /assets/ paths with relative ./assets/ for GitHub Pages subpath compatibility
+  html = html.replaceAll('/assets/', './assets/');
   html = html.replaceAll('href="/', 'href="./');
   html = html.replaceAll('src="/', 'src="./');
-  html = html.replaceAll('data-rsc-css-href="/', 'data-rsc-css-href="./');
-  html = html.replaceAll('import("/assets/', 'import("./assets/');
-  html = html.replaceAll('"/assets/', '"./assets/');
-  html = html.replaceAll('\"/assets/', '\"./assets/');
   html = html.replaceAll('/workspace/sites/kalkulator-harga-shopee/.vinext/', './.vinext/');
 
   const staticDir = path.join(rootDir, "dist", "static");
