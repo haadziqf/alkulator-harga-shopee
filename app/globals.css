@@ -892,3 +892,52 @@ footer p {
     transition-duration: 0.01ms !important;
   }
 }
+
+.platform-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 22px;
+  padding: 6px;
+  background: #f7ece6;
+  border-radius: 16px;
+}
+
+.platform-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.platform-btn:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.platform-btn.active {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.platform-btn.shopee.active {
+  color: #ee4d2d;
+}
+
+.platform-btn.tokopedia.active {
+  color: #03ac0e;
+}
+
+.platform-btn.tiktok.active {
+  color: #000000;
+}
+
