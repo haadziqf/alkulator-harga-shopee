@@ -24,6 +24,7 @@ interface PlatformConfig {
   name: string;
   badge: string;
   icon: string;
+  themeColor: string;
   adminRateDefault: number;
   shippingRateDefault: number;
   shippingCapDefault: number;
@@ -40,6 +41,7 @@ const PLATFORMS: Record<Platform, PlatformConfig> = {
     name: "Shopee Indonesia",
     badge: "Shopee",
     icon: "🧡",
+    themeColor: "#ee4d2d",
     adminRateDefault: 10,
     shippingRateDefault: 5.5,
     shippingCapDefault: 40000,
@@ -75,6 +77,7 @@ const PLATFORMS: Record<Platform, PlatformConfig> = {
     name: "Tokopedia",
     badge: "Tokopedia",
     icon: "💚",
+    themeColor: "#03ac0e",
     adminRateDefault: 8,
     shippingRateDefault: 4,
     shippingCapDefault: 10000,
@@ -105,6 +108,7 @@ const PLATFORMS: Record<Platform, PlatformConfig> = {
     name: "TikTok Shop by Tokopedia",
     badge: "TikTok Shop",
     icon: "🖤",
+    themeColor: "#121212",
     adminRateDefault: 7,
     shippingRateDefault: 4.5,
     shippingCapDefault: 40000,
@@ -371,6 +375,38 @@ export default function Home() {
     result.sellerDiscountNominal;
   const feePercent = result.price ? (totalFees / result.price) * 100 : 0;
 
+  // Comparison logic across all 3 platforms
+  const comparison = useMemo(() => {
+    const list = (Object.keys(PLATFORMS) as Platform[]).map((platKey) => {
+      const cfg = PLATFORMS[platKey];
+      const platInput: Inputs = {
+        ...input,
+        platform: platKey,
+        adminRate: cfg.adminRateDefault,
+        shippingRate: cfg.shippingRateDefault,
+        shippingCap: cfg.shippingCapDefault,
+        promoRate: cfg.promoRateDefault,
+      };
+      const res = solvePrice(platInput);
+      const fees = res.variableFees + res.processOrder + res.sellerDiscountNominal;
+      const pct = res.price ? (fees / res.price) * 100 : 0;
+      return {
+        key: platKey,
+        config: cfg,
+        res,
+        totalFees: fees,
+        feePercent: pct,
+      };
+    });
+
+    const sorted = [...list].sort((a, b) => b.res.netRevenue - a.res.netRevenue);
+    const best = sorted[0];
+    const second = sorted[1];
+    const diff = best.res.netRevenue - second.res.netRevenue;
+
+    return { list, best, second, diff };
+  }, [input]);
+
   const patch = <K extends keyof Inputs>(key: K, value: Inputs[K]) =>
     setInput((current) => ({ ...current, [key]: value }));
 
@@ -387,7 +423,7 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main data-theme={input.platform}>
       <nav className="nav shell">
         <a className="brand" href="#kalkulator" aria-label="Hitung Jual">
           <span className="brand-icon" aria-hidden="true">
@@ -397,6 +433,7 @@ export default function Home() {
         </a>
         <div className="nav-links">
           <a className="active" href="#kalkulator">Kalkulator</a>
+          <a href="#perbandingan">Perbandingan Untung</a>
           <a href="#cara-hitung">Cara hitung</a>
           <a href="#sumber">Sumber aturan</a>
         </div>
@@ -406,7 +443,7 @@ export default function Home() {
       </nav>
 
       <section className="hero shell" id="kalkulator">
-        <p className="eyebrow">Kalkulator harga jual Shopee, Tokopedia & TikTok Shop</p>
+        <p className="eyebrow">Kalkulator harga jual & perbandingan untung e-commerce</p>
         <h1>Harga Jualnya Berapa?</h1>
         <p>Hitung harga jual tanpa nebak margin—sudah memperhitungkan komisi admin & program potongan masing-masing marketplace.</p>
       </section>
@@ -668,6 +705,62 @@ export default function Home() {
               : `Harga dihitung agar uang bersih minimal ${rupiah.format(input.targetNetRevenue)} setelah seluruh potongan ${activePlatform.name}.`}
           </p>
         </aside>
+      </section>
+
+      {/* Multi-Marketplace Comparison Section ("Perbandingan Mana Paling Untung") */}
+      <section className="comparison-section shell" id="perbandingan">
+        <div className="comparison-header">
+          <h2>📊 Perbandingan 3 Marketplace (Mana Paling Untung?)</h2>
+          <p>Bandingkan harga jual & hasil uang bersih jika kamu menjual produk ini di Shopee, Tokopedia, dan TikTok Shop.</p>
+        </div>
+
+        {/* Best Recommendation Banner */}
+        <div className="best-banner">
+          <div className="best-banner-icon">🏆</div>
+          <div className="best-banner-text">
+            <strong>
+              Rekomendasi Paling Untung: {comparison.best.config.name} {comparison.best.config.icon}
+            </strong>
+            <p>
+              Menjual di {comparison.best.config.name} menghasilkan uang bersih tertinggi ({rupiah.format(comparison.best.res.netRevenue)}) dengan harga jual Rp{formatNumber(comparison.best.res.price)}. Berpotensi untung lebih banyak dibanding platform lain!
+            </p>
+          </div>
+        </div>
+
+        <div className="comparison-grid">
+          {comparison.list.map((item) => {
+            const isBest = item.key === comparison.best.key;
+            return (
+              <div key={item.key} className={`comparison-card ${isBest ? "is-best" : ""}`}>
+                {isBest && <span className="best-tag">🏆 PALING UNTUNG</span>}
+                <div className="comparison-card-badge">
+                  <span>{item.config.icon}</span>
+                  <span>{item.config.name}</span>
+                </div>
+
+                <div className="comp-price-box">
+                  <span>Harga Jual Disarankan</span>
+                  <strong>{rupiah.format(item.res.price)}</strong>
+                </div>
+
+                <div className="comp-metrics">
+                  <div>
+                    <span>Uang Bersih Diterima</span>
+                    <b>{rupiah.format(item.res.netRevenue)}</b>
+                  </div>
+                  <div>
+                    <span>Profit Bersih</span>
+                    <b>{rupiah.format(item.res.profit)}</b>
+                  </div>
+                  <div>
+                    <span>Total Potongan</span>
+                    <b>{rupiah.format(item.totalFees)} ({item.feePercent.toFixed(1).replace(".", ",")}%)</b>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       <section className="method shell" id="cara-hitung">
