@@ -507,26 +507,38 @@ Dihitung via HitungJual (${activePlatform.name})`;
     window.print();
   };
 
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const target = document.getElementById(id);
+    if (target) {
+      const yOffset = -90;
+      const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
+
   return (
     <main data-theme={input.platform}>
-      <nav className="nav shell">
-        <a className="brand" href="#kalkulator" aria-label="Hitung Jual">
-          <span className="brand-icon" aria-hidden="true">
-            <b>+</b><b>−</b><b>×</b><b>=</b>
-          </span>
-          <span>Hitung<span>.Jual</span></span>
-        </a>
-        <div className="nav-links">
-          <a className="active" href="#kalkulator">Kalkulator</a>
-          <a href="#perbandingan">Perbandingan Untung</a>
-          <a href="#grosir">Simulasi Grosir</a>
-          <a href="#cara-hitung">Cara hitung</a>
-          <a href="#sumber">Sumber aturan</a>
-        </div>
-        <a className="checked-date" href="#sumber">
-          <span aria-hidden="true">▣</span> Aturan diperiksa 2026
-        </a>
-      </nav>
+      <div className="nav-container">
+        <nav className="nav shell">
+          <a className="brand" href="#kalkulator" onClick={(e) => scrollToSection(e, "kalkulator")} aria-label="Hitung Jual">
+            <span className="brand-icon" aria-hidden="true">
+              <b>+</b><b>−</b><b>×</b><b>=</b>
+            </span>
+            <span>Hitung<span>.Jual</span></span>
+          </a>
+          <div className="nav-links">
+            <a href="#kalkulator" onClick={(e) => scrollToSection(e, "kalkulator")}>Kalkulator</a>
+            <a href="#perbandingan" onClick={(e) => scrollToSection(e, "perbandingan")}>Perbandingan Untung</a>
+            <a href="#grosir" onClick={(e) => scrollToSection(e, "grosir")}>Simulasi Grosir</a>
+            <a href="#cara-hitung" onClick={(e) => scrollToSection(e, "cara-hitung")}>Cara hitung</a>
+            <a href="#sumber" onClick={(e) => scrollToSection(e, "sumber")}>Sumber aturan</a>
+          </div>
+          <a className="checked-date" href="#sumber" onClick={(e) => scrollToSection(e, "sumber")}>
+            <span aria-hidden="true">▣</span> Aturan diperiksa 2026
+          </a>
+        </nav>
+      </div>
 
       <section className="hero shell" id="kalkulator">
         <p className="eyebrow">Kalkulator harga jual & perbandingan profit Shopee, Tokopedia & TikTok Shop</p>

@@ -67,13 +67,22 @@ a {
   margin-inline: auto;
 }
 
+.nav-container {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: rgba(255, 250, 246, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(234, 216, 208, 0.8);
+}
+
 .nav {
-  min-height: 82px;
+  min-height: 76px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 28px;
-  border-bottom: 1px solid rgba(234, 216, 208, 0.8);
 }
 
 .brand {
