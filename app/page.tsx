@@ -981,12 +981,11 @@ Dihitung via HitungJual (${activePlatform.name})`;
             </div>
           </div>
           <a
-            href="https://lynk.id/"
-            target="_blank"
-            rel="noreferrer"
+            href="./Template_Pembukuan_Toko_Marketplace_2026.xlsx"
+            download="Template_Pembukuan_Toko_Marketplace_2026.xlsx"
             className="digital-action-btn"
           >
-            📥 Download Template (Rp29rb)
+            📥 Download Template Excel (Gratis)
           </a>
         </div>
 

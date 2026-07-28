@@ -44,6 +44,7 @@ async function buildStatic() {
   html = html.replaceAll('./manifest.json', `${repoName}manifest.json`);
   html = html.replaceAll('./favicon.svg', `${repoName}favicon.svg`);
   html = html.replaceAll('./sw.js', `${repoName}sw.js`);
+  html = html.replaceAll('./Template_Pembukuan_Toko_Marketplace_2026.xlsx', `${repoName}Template_Pembukuan_Toko_Marketplace_2026.xlsx`);
 
   const staticDir = path.join(rootDir, "dist", "static");
   const clientDir = path.join(rootDir, "dist", "client");
