@@ -152,6 +152,33 @@ const CATEGORIES: CategoryPreset[] = [
   { id: "custom", name: "⚙️ Atur Manual / Kategori Lainnya", rates: { shopee: 10, tokopedia: 8, tiktok: 7 } },
 ];
 
+const AFFILIATE_PRODUCTS = [
+  {
+    icon: "🖨️",
+    title: "Printer Thermal Resi Bluetooth",
+    desc: "Cetak resi Shopee/Tokped tanpa tinta hemat waktu.",
+    link: "https://shopee.co.id/search?keyword=printer%20thermal%20resi",
+  },
+  {
+    icon: "📜",
+    title: "Kertas Sticker Thermal 100x150",
+    desc: "Sticker resi tinggal tempel, anti air & goresan.",
+    link: "https://shopee.co.id/search?keyword=kertas%20thermal%20100x150",
+  },
+  {
+    icon: "📦",
+    title: "Plastik Polymailer Tangan Pertama",
+    desc: "Plastik packing tebal, anti bocor & hemat waktu.",
+    link: "https://shopee.co.id/search?keyword=plastik%20polymailer%20packing",
+  },
+  {
+    icon: "🏷️",
+    title: "Lakban Fragile & Bening Grosir",
+    desc: "Lakban perekat kuat untuk keamanan paket seller.",
+    link: "https://shopee.co.id/search?keyword=lakban%20fragile",
+  },
+];
+
 type Inputs = {
   platform: Platform;
   category: string;
@@ -517,6 +544,11 @@ Dihitung via HitungJual (${activePlatform.name})`;
     }
   };
 
+  const triggerSponsorContact = () => {
+    setToastMessage("📩 Kontak Sponsor: Silakan hubungi admin@hitungjual.id / WA: 0812-3456-7890");
+    setTimeout(() => setToastMessage(null), 5000);
+  };
+
   return (
     <main data-theme={input.platform}>
       <div className="nav-container">
@@ -531,8 +563,8 @@ Dihitung via HitungJual (${activePlatform.name})`;
             <a href="#kalkulator" onClick={(e) => scrollToSection(e, "kalkulator")}>Kalkulator</a>
             <a href="#perbandingan" onClick={(e) => scrollToSection(e, "perbandingan")}>Perbandingan Untung</a>
             <a href="#grosir" onClick={(e) => scrollToSection(e, "grosir")}>Simulasi Grosir</a>
+            <a href="#perlengkapan" onClick={(e) => scrollToSection(e, "perlengkapan")}>Perlengkapan Seller</a>
             <a href="#cara-hitung" onClick={(e) => scrollToSection(e, "cara-hitung")}>Cara hitung</a>
-            <a href="#sumber" onClick={(e) => scrollToSection(e, "sumber")}>Sumber aturan</a>
           </div>
           <a className="checked-date" href="#sumber" onClick={(e) => scrollToSection(e, "sumber")}>
             <span aria-hidden="true">▣</span> Aturan diperiksa 2026
@@ -912,6 +944,61 @@ Dihitung via HitungJual (${activePlatform.name})`;
               <div className="wholesale-sub">Profit: {rupiah.format(sim.res.profit)}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Monetization Section 1: Perlengkapan Seller Terlaris (Affiliate Products) */}
+      <section className="monetize-section shell" id="perlengkapan">
+        <div className="monetize-header">
+          <h2>📦 Rekomendasi Perlengkapan Jualan Seller (Harga Supplier)</h2>
+          <p>Peralatan packing & operasional terlaris yang paling banyak dipakai seller Shopee, Tokopedia, dan TikTok Shop.</p>
+        </div>
+
+        <div className="affiliate-grid">
+          {AFFILIATE_PRODUCTS.map((prod, idx) => (
+            <div key={idx} className="affiliate-card">
+              <div>
+                <div className="affiliate-icon">{prod.icon}</div>
+                <div className="affiliate-title">{prod.title}</div>
+                <div className="affiliate-desc">{prod.desc}</div>
+              </div>
+              <a href={prod.link} target="_blank" rel="noreferrer" className="affiliate-btn">
+                <span>Cek Harga Promo ↗</span>
+              </a>
+            </div>
+          ))}
+        </div>
+
+        {/* Digital Product Banner */}
+        <div className="digital-product-banner" id="template">
+          <div className="digital-product-content">
+            <h3>📊 Template Excel Pembukuan & Laporan Keuangan Toko</h3>
+            <p>Kelola stok barang, laporan laba rugi otomatis, dan tracker komisi marketplace tanpa rumus rumit. Siap pakai di Excel & Google Sheets.</p>
+            <div className="digital-features">
+              <span>✓ Laporan Laba Rugi Otomatis</span>
+              <span>✓ Rekap Stok & Penjualan</span>
+              <span>✓ Tracker Potongan Komisi</span>
+            </div>
+          </div>
+          <a
+            href="https://lynk.id/"
+            target="_blank"
+            rel="noreferrer"
+            className="digital-action-btn"
+          >
+            📥 Download Template (Rp29rb)
+          </a>
+        </div>
+
+        {/* Sponsorship / Partner Banner Slot */}
+        <div className="sponsor-banner">
+          <div className="sponsor-info">
+            <h4>📢 Slot Iklan & Partner Seller (Ekspedisi / Supplier / ERP)</h4>
+            <p>Tampilkan brand ekspedisi, supplier, atau software bisnis Anda di hadapan ribuan seller marketplace aktif setiap harinya.</p>
+          </div>
+          <button type="button" className="sponsor-btn" onClick={triggerSponsorContact}>
+            Hubungi Kerjasama ✉️
+          </button>
         </div>
       </section>
 

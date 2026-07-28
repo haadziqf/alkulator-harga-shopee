@@ -1276,5 +1276,214 @@ footer p {
   }
 }
 
+/* Monetization Sections */
+.monetize-section {
+  margin-top: 36px;
+  padding: 32px;
+  background: white;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.monetize-header h2 {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.03em;
+}
+
+.monetize-header p {
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.affiliate-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.affiliate-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 18px;
+  border-radius: 18px;
+  border: 1.5px solid #eae0d9;
+  background: #fcf9f7;
+  transition: all 180ms ease;
+}
+
+.affiliate-card:hover {
+  border-color: var(--orange);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(238, 77, 45, 0.1);
+}
+
+.affiliate-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.affiliate-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.affiliate-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.affiliate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--orange);
+  color: white;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+  transition: background 160ms ease;
+}
+
+.affiliate-btn:hover {
+  background: #d63f21;
+}
+
+/* Digital Product Banner */
+.digital-product-banner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+  margin-top: 36px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, #1e1512, #38241e);
+  color: white;
+  border-radius: 24px;
+  box-shadow: 0 12px 32px rgba(30, 21, 18, 0.18);
+}
+
+.digital-product-content h3 {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.digital-product-content p {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: #e2d5ce;
+  line-height: 1.5;
+}
+
+.digital-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: #f7ece6;
+}
+
+.digital-features span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.digital-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 14px;
+  background: #f59e0b;
+  color: #78350f;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+  transition: all 180ms ease;
+  white-space: nowrap;
+}
+
+.digital-action-btn:hover {
+  background: #fbbf24;
+  transform: translateY(-2px);
+}
+
+/* Sponsor Slot */
+.sponsor-banner {
+  margin-top: 36px;
+  padding: 24px 32px;
+  border: 2px dashed #dfccc4;
+  border-radius: 20px;
+  background: #fdfbf9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.sponsor-info h4 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: var(--ink);
+}
+
+.sponsor-info p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sponsor-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 160ms ease;
+}
+
+.sponsor-btn:hover {
+  background: var(--ink);
+  color: white;
+}
+
+@media (max-width: 900px) {
+  .affiliate-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .digital-product-banner {
+    grid-template-columns: 1fr;
+  }
+  .sponsor-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+
 
 
