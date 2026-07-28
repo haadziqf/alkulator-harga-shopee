@@ -40,6 +40,7 @@ async function buildStatic() {
 
   const staticDir = path.join(rootDir, "dist", "static");
   const clientDir = path.join(rootDir, "dist", "client");
+  const publicDir = path.join(rootDir, "public");
   const fontsDir = path.join(rootDir, ".vinext");
 
   // Remove existing static dir if any
@@ -49,6 +50,11 @@ async function buildStatic() {
 
   // Copy client assets to static dir
   fs.cpSync(clientDir, staticDir, { recursive: true });
+
+  // Copy public files (manifest.json, sw.js, etc.)
+  if (fs.existsSync(publicDir)) {
+    fs.cpSync(publicDir, staticDir, { recursive: true });
+  }
 
   // Copy .vinext fonts to static dir if exists
   if (fs.existsSync(fontsDir)) {

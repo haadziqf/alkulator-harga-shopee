@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 function formatNumber(value: number): string {
   const isNegative = value < 0;
@@ -136,8 +136,25 @@ const PLATFORMS: Record<Platform, PlatformConfig> = {
   },
 };
 
+interface CategoryPreset {
+  id: string;
+  name: string;
+  rates: Record<Platform, number>;
+}
+
+const CATEGORIES: CategoryPreset[] = [
+  { id: "fashion", name: "👗 Fashion, Pakaian & Aksesoris", rates: { shopee: 10, tokopedia: 8, tiktok: 8 } },
+  { id: "elektronik", name: "📱 Elektronik, Gadget & Komputer", rates: { shopee: 4, tokopedia: 4, tiktok: 4.5 } },
+  { id: "skincare", name: "💄 Skincare, Kecantikan & Kesehatan", rates: { shopee: 9, tokopedia: 7.5, tiktok: 7 } },
+  { id: "fmcg", name: "🍔 Makanan, Minuman & Supermarket", rates: { shopee: 8, tokopedia: 6.5, tiktok: 6 } },
+  { id: "home", name: "🏠 Rumah Tangga, Dapur & Ibu-Bayi", rates: { shopee: 9, tokopedia: 7, tiktok: 7 } },
+  { id: "hobby", name: "🚗 Otomotif, Olahraga & Hobi", rates: { shopee: 8.5, tokopedia: 7, tiktok: 6.5 } },
+  { id: "custom", name: "⚙️ Atur Manual / Kategori Lainnya", rates: { shopee: 10, tokopedia: 8, tiktok: 7 } },
+];
+
 type Inputs = {
   platform: Platform;
+  category: string;
   targetMode: "profit" | "net";
   targetNetRevenue: number;
   hpp: number;
@@ -147,6 +164,7 @@ type Inputs = {
   profitPercent: number;
   sellerDiscount: number;
   adminRate: number;
+  adsRate: number;
   shippingOn: boolean;
   shippingRate: number;
   shippingCap: number;
@@ -163,6 +181,7 @@ type Inputs = {
 
 const initialInputs: Inputs = {
   platform: "shopee",
+  category: "fashion",
   targetMode: "profit",
   targetNetRevenue: 900000,
   hpp: 700000,
@@ -172,6 +191,7 @@ const initialInputs: Inputs = {
   profitPercent: 25,
   sellerDiscount: 0,
   adminRate: 10,
+  adsRate: 0,
   shippingOn: true,
   shippingRate: 5.5,
   shippingCap: 40000,
@@ -194,6 +214,7 @@ function calcAtPrice(listingPrice: number, input: Inputs) {
   const quantity = Math.max(1, input.quantity);
   const transactionBase = listingPrice * (1 - input.sellerDiscount / 100);
   const admin = transactionBase * (input.adminRate / 100);
+  const ads = transactionBase * (input.adsRate / 100);
   const shipping = input.shippingOn
     ? Math.min(transactionBase * (input.shippingRate / 100), input.shippingCap)
     : 0;
@@ -209,7 +230,7 @@ function calcAtPrice(listingPrice: number, input: Inputs) {
   const mallPayment = input.mallPayment ? transactionBase * 0.018 : 0;
   const processOrder = input.orderFee / quantity;
   const variableFees =
-    admin + shipping + promo + affiliate + preorder + mallPayment;
+    admin + ads + shipping + promo + affiliate + preorder + mallPayment;
   const productCosts =
     input.hpp + input.packing + input.operational + input.buffer;
   const netRevenue = transactionBase - variableFees - processOrder;
@@ -218,6 +239,7 @@ function calcAtPrice(listingPrice: number, input: Inputs) {
   return {
     transactionBase,
     admin,
+    ads,
     shipping,
     promo,
     affiliate,
@@ -365,6 +387,13 @@ function Toggle({
 export default function Home() {
   const [input, setInput] = useState(initialInputs);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+  }, []);
 
   const activePlatform = PLATFORMS[input.platform];
   const result = useMemo(() => solvePrice(input), [input]);
@@ -379,10 +408,15 @@ export default function Home() {
   const comparison = useMemo(() => {
     const list = (Object.keys(PLATFORMS) as Platform[]).map((platKey) => {
       const cfg = PLATFORMS[platKey];
+      const categoryConfig = CATEGORIES.find((c) => c.id === input.category);
+      const adminRate = categoryConfig && categoryConfig.id !== "custom"
+        ? categoryConfig.rates[platKey]
+        : cfg.adminRateDefault;
+
       const platInput: Inputs = {
         ...input,
         platform: platKey,
-        adminRate: cfg.adminRateDefault,
+        adminRate: adminRate,
         shippingRate: cfg.shippingRateDefault,
         shippingCap: cfg.shippingCapDefault,
         promoRate: cfg.promoRateDefault,
@@ -407,19 +441,70 @@ export default function Home() {
     return { list, best, second, diff };
   }, [input]);
 
+  // Wholesale simulation for 1, 3, 5, 10 pcs
+  const wholesaleSimulations = useMemo(() => {
+    return [1, 3, 5, 10].map((qty) => {
+      const res = solvePrice({ ...input, quantity: qty });
+      return { qty, res };
+    });
+  }, [input]);
+
   const patch = <K extends keyof Inputs>(key: K, value: Inputs[K]) =>
     setInput((current) => ({ ...current, [key]: value }));
 
   const changePlatform = (newPlatform: Platform) => {
     const config = PLATFORMS[newPlatform];
+    const categoryConfig = CATEGORIES.find((c) => c.id === input.category);
+    const adminRate = categoryConfig && categoryConfig.id !== "custom"
+      ? categoryConfig.rates[newPlatform]
+      : config.adminRateDefault;
+
     setInput((prev) => ({
       ...prev,
       platform: newPlatform,
-      adminRate: config.adminRateDefault,
+      adminRate: adminRate,
       shippingRate: config.shippingRateDefault,
       shippingCap: config.shippingCapDefault,
       promoRate: config.promoRateDefault,
     }));
+  };
+
+  const changeCategory = (catId: string) => {
+    const categoryConfig = CATEGORIES.find((c) => c.id === catId);
+    if (categoryConfig && catId !== "custom") {
+      const rate = categoryConfig.rates[input.platform];
+      setInput((prev) => ({
+        ...prev,
+        category: catId,
+        adminRate: rate,
+      }));
+    } else {
+      setInput((prev) => ({ ...prev, category: catId }));
+    }
+  };
+
+  const copySummary = () => {
+    const text = `📊 RINGKASAN HARGA JUAL (${activePlatform.name.toUpperCase()})
+-----------------------------------------
+HPP Modal: ${rupiah.format(input.hpp)}
+Packing: ${rupiah.format(input.packing)}
+Target Profit: ${input.targetMode === 'profit' ? input.profitPercent + '%' : rupiah.format(input.targetNetRevenue)}
+-----------------------------------------
+💡 HARGA JUAL DISARANKAN: ${rupiah.format(result.price)}
+-----------------------------------------
+• Uang Bersih Diterima: ${rupiah.format(result.netRevenue)}
+• Profit Bersih: ${rupiah.format(result.profit)}
+• Total Potongan Komisi: ${rupiah.format(totalFees)} (${feePercent.toFixed(1).replace(".", ",")}%)
+
+Dihitung via HitungJual (${activePlatform.name})`;
+
+    navigator.clipboard.writeText(text);
+    setToastMessage("📋 Ringkasan perhitungan berhasil disalin!");
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const printSummary = () => {
+    window.print();
   };
 
   return (
@@ -434,6 +519,7 @@ export default function Home() {
         <div className="nav-links">
           <a className="active" href="#kalkulator">Kalkulator</a>
           <a href="#perbandingan">Perbandingan Untung</a>
+          <a href="#grosir">Simulasi Grosir</a>
           <a href="#cara-hitung">Cara hitung</a>
           <a href="#sumber">Sumber aturan</a>
         </div>
@@ -443,7 +529,7 @@ export default function Home() {
       </nav>
 
       <section className="hero shell" id="kalkulator">
-        <p className="eyebrow">Kalkulator harga jual & perbandingan untung e-commerce</p>
+        <p className="eyebrow">Kalkulator harga jual & perbandingan profit Shopee, Tokopedia & TikTok Shop</p>
         <h1>Harga Jualnya Berapa?</h1>
         <p>Hitung harga jual tanpa nebak margin—sudah memperhitungkan komisi admin & program potongan masing-masing marketplace.</p>
       </section>
@@ -476,6 +562,23 @@ export default function Home() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Category Preset Dropdown */}
+          <div className="category-select-wrapper">
+            <label htmlFor="category-select">Pilih Kategori Produk (Preset Komisi Admin)</label>
+            <select
+              id="category-select"
+              className="category-select"
+              value={input.category}
+              onChange={(e) => changeCategory(e.target.value)}
+            >
+              {CATEGORIES.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name} {cat.id !== "custom" ? `(${cat.rates[input.platform]}% Admin)` : ""}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="target-mode" aria-label="Pilih target perhitungan">
@@ -529,7 +632,7 @@ export default function Home() {
               label={`Biaya admin kategori (${activePlatform.badge})`}
               value={input.adminRate}
               onChange={(value) => patch("adminRate", value)}
-              hint="Cek tarif kategori produkmu di Seller Centre"
+              hint="Otomatis terisi dari kategori atau atur manual"
             />
           </div>
 
@@ -562,14 +665,20 @@ export default function Home() {
             onClick={() => setShowAdvanced((value) => !value)}
             aria-expanded={showAdvanced}
           >
-            <span>Biaya lanjutan</span>
-            <small>Affiliate, promo, pre-order, diskon, dan biaya operasional</small>
+            <span>Biaya lanjutan & Ads</span>
+            <small>Iklan, Affiliate, promo, pre-order, diskon, dan biaya operasional</small>
             <b>{showAdvanced ? "−" : "+"}</b>
           </button>
 
           {showAdvanced && (
             <div className="advanced-panel">
               <div className="input-grid">
+                <PercentInput
+                  label={`Biaya Iklan (${activePlatform.badge} Ads %)`}
+                  value={input.adsRate}
+                  onChange={(value) => patch("adsRate", value)}
+                  hint="Estimasi budget iklan dari omzet"
+                />
                 <PercentInput
                   label="Diskon/voucher seller"
                   value={input.sellerDiscount}
@@ -691,6 +800,7 @@ export default function Home() {
             <div>
               {result.sellerDiscountNominal > 0 && <p><span>Diskon seller</span><b>{rupiah.format(result.sellerDiscountNominal)}</b></p>}
               <p><span>Biaya admin ({activePlatform.badge})</span><b>{rupiah.format(result.admin)}</b></p>
+              {result.ads > 0 && <p><span>Biaya Iklan ({activePlatform.badge} Ads)</span><b>{rupiah.format(result.ads)}</b></p>}
               {result.shipping > 0 && <p><span>{activePlatform.shippingLabel}</span><b>{rupiah.format(result.shipping)}</b></p>}
               {result.promo > 0 && <p><span>{activePlatform.promoLabel}</span><b>{rupiah.format(result.promo)}</b></p>}
               {result.affiliate > 0 && <p><span>Affiliate + PPN</span><b>{rupiah.format(result.affiliate)}</b></p>}
@@ -699,6 +809,17 @@ export default function Home() {
               <p><span>Proses pesanan per produk</span><b>{rupiah.format(result.processOrder)}</b></p>
             </div>
           </details>
+
+          {/* Action Buttons: Copy & Print */}
+          <div className="action-buttons">
+            <button type="button" className="btn-action primary" onClick={copySummary}>
+              📋 Salin Ringkasan
+            </button>
+            <button type="button" className="btn-action" onClick={printSummary}>
+              🖨️ Cetak / PDF
+            </button>
+          </div>
+
           <p className="result-footnote">
             {input.targetMode === "profit"
               ? `Profit dihitung setelah HPP, packing, operasional, buffer, dan seluruh biaya ${activePlatform.name}.`
@@ -763,6 +884,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Wholesale Simulation Section */}
+      <section className="wholesale-section shell" id="grosir">
+        <div className="wholesale-header">
+          <h2>📦 Simulasi Pembelian Paket Grosir ({activePlatform.badge})</h2>
+          <p>Perbandingan harga jual & profit jika pembeli membeli produk dalam jumlah banyak sekaligus dalam 1 pesanan (biaya proses Rp1.250 terbagi rata).</p>
+        </div>
+
+        <div className="wholesale-grid">
+          {wholesaleSimulations.map((sim) => (
+            <div key={sim.qty} className="wholesale-card">
+              <span className="wholesale-qty">Paket {sim.qty} pcs</span>
+              <div className="wholesale-price">{rupiah.format(sim.res.price)}</div>
+              <div className="wholesale-sub">Uang bersih: {rupiah.format(sim.res.netRevenue)}</div>
+              <div className="wholesale-sub">Profit: {rupiah.format(sim.res.profit)}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="method shell" id="cara-hitung">
         <div>
           <p className="step">Cara hitung</p>
@@ -813,6 +953,13 @@ export default function Home() {
           Hasil merupakan estimasi dan tidak menggantikan rincian penghasilan di Seller Centre masing-masing.
         </p>
       </section>
+
+      {/* Toast Notice */}
+      {toastMessage && (
+        <div className="toast-notice">
+          {toastMessage}
+        </div>
+      )}
 
       <footer className="shell">
         <a className="brand compact" href="#kalkulator">
