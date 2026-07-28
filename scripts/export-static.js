@@ -29,13 +29,18 @@ async function buildStatic() {
 
   let html = await response.text();
 
-  // Replace root-relative paths with relative paths for GitHub Pages compatibility
+  // Replace absolute paths with relative paths for GitHub Pages compatibility
   html = html.replaceAll('href="/', 'href="./');
   html = html.replaceAll('src="/', 'src="./');
   html = html.replaceAll('data-rsc-css-href="/', 'data-rsc-css-href="./');
+  html = html.replaceAll('import("/assets/', 'import("./assets/');
+  html = html.replaceAll('"/assets/', '"./assets/');
+  html = html.replaceAll('\"/assets/', '\"./assets/');
+  html = html.replaceAll('/workspace/sites/kalkulator-harga-shopee/.vinext/', './.vinext/');
 
   const staticDir = path.join(rootDir, "dist", "static");
   const clientDir = path.join(rootDir, "dist", "client");
+  const fontsDir = path.join(rootDir, ".vinext");
 
   // Remove existing static dir if any
   if (fs.existsSync(staticDir)) {
@@ -44,6 +49,11 @@ async function buildStatic() {
 
   // Copy client assets to static dir
   fs.cpSync(clientDir, staticDir, { recursive: true });
+
+  // Copy .vinext fonts to static dir if exists
+  if (fs.existsSync(fontsDir)) {
+    fs.cpSync(fontsDir, path.join(staticDir, ".vinext"), { recursive: true });
+  }
 
   // Write index.html to static dir
   fs.writeFileSync(path.join(staticDir, "index.html"), html, "utf-8");
