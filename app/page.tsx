@@ -426,6 +426,7 @@ export default function Home() {
   const [input, setInput] = useState(initialInputs);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -549,6 +550,7 @@ Dihitung via HitungJual (${activePlatform.name})`;
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
+    setMobileMenuOpen(false);
     const target = document.getElementById(id);
     if (target) {
       const yOffset = -90;
@@ -572,16 +574,28 @@ Dihitung via HitungJual (${activePlatform.name})`;
             </span>
             <span>Hitung<span>.Jual</span></span>
           </a>
-          <div className="nav-links">
+          <div className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
             <a href="#kalkulator" onClick={(e) => scrollToSection(e, "kalkulator")}>Kalkulator</a>
             <a href="#perbandingan" onClick={(e) => scrollToSection(e, "perbandingan")}>Perbandingan Untung</a>
             <a href="#grosir" onClick={(e) => scrollToSection(e, "grosir")}>Simulasi Grosir</a>
             <a href="#perlengkapan" onClick={(e) => scrollToSection(e, "perlengkapan")}>Perlengkapan Seller</a>
             <a href="#cara-hitung" onClick={(e) => scrollToSection(e, "cara-hitung")}>Cara hitung</a>
+            <a className="checked-date mobile-only-date" href="#sumber" onClick={(e) => scrollToSection(e, "sumber")}>
+              <span aria-hidden="true">▣</span> Aturan diperiksa 2026
+            </a>
           </div>
-          <a className="checked-date" href="#sumber" onClick={(e) => scrollToSection(e, "sumber")}>
+          <a className="checked-date desktop-only-date" href="#sumber" onClick={(e) => scrollToSection(e, "sumber")}>
             <span aria-hidden="true">▣</span> Aturan diperiksa 2026
           </a>
+          <button
+            type="button"
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label="Toggle Navigation Menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            <span className={`hamburger-bar ${mobileMenuOpen ? "open" : ""}`} />
+          </button>
         </nav>
       </div>
 

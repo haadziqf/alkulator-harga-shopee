@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,11 +12,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#ee4d2d",
+};
+
 export const metadata: Metadata = {
   title: "HitungJual - Kalkulator Harga Marketplace & Profit Seller",
   description: "Kalkulator harga jual & perbandingan profit Shopee, Tokopedia, dan TikTok Shop. Sudah memperhitungkan komisi admin & program potongan.",
   manifest: "./manifest.json",
-  themeColor: "#ee4d2d",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -40,6 +46,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
         <link rel="manifest" href="./manifest.json" />
         <meta name="theme-color" content="#ee4d2d" />
         <meta name="mobile-web-app-capable" content="yes" />
