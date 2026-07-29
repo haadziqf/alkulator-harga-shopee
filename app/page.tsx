@@ -473,10 +473,10 @@ export default function Home() {
       };
     });
 
-    const sorted = [...list].sort((a, b) => b.res.netRevenue - a.res.netRevenue);
+    const sorted = [...list].sort((a, b) => a.feePercent - b.feePercent);
     const best = sorted[0];
     const second = sorted[1];
-    const diff = best.res.netRevenue - second.res.netRevenue;
+    const diff = second.feePercent - best.feePercent;
 
     return { list, best, second, diff };
   }, [input]);
@@ -912,10 +912,10 @@ Dihitung via HitungJual (${activePlatform.name})`;
           <div className="best-banner-icon">🏆</div>
           <div className="best-banner-text">
             <strong>
-              Rekomendasi Paling Untung: {comparison.best.config.name} {comparison.best.config.icon}
+              Rekomendasi Paling Untung &amp; Efisien: {comparison.best.config.name} {comparison.best.config.icon}
             </strong>
             <p>
-              Menjual di {comparison.best.config.name} menghasilkan uang bersih tertinggi ({rupiah.format(comparison.best.res.netRevenue)}) dengan harga jual Rp{formatNumber(comparison.best.res.price)}. Berpotensi untung lebih banyak dibanding platform lain!
+              {comparison.best.config.name} memiliki total potongan komisi paling rendah ({comparison.best.feePercent.toFixed(1).replace(".", ",")}%). Anda cukup menjual seharga {rupiah.format(comparison.best.res.price)} untuk mendapatkan profit bersih {rupiah.format(comparison.best.res.profit)}—jauh lebih murah &amp; kompetitif bagi pembeli!
             </p>
           </div>
         </div>
