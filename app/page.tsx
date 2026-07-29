@@ -157,25 +157,25 @@ const AFFILIATE_PRODUCTS = [
     icon: "🖨️",
     title: "Printer Thermal Resi Bluetooth",
     desc: "Cetak resi Shopee/Tokped tanpa tinta hemat waktu.",
-    link: "https://shopee.co.id/search?keyword=printer%20thermal%20resi",
+    link: "https://s.shopee.co.id/9zwVusYu0M",
   },
   {
     icon: "📜",
     title: "Kertas Sticker Thermal 100x150",
     desc: "Sticker resi tinggal tempel, anti air & goresan.",
-    link: "https://shopee.co.id/search?keyword=kertas%20thermal%20100x150",
+    link: "https://s.shopee.co.id/8pkYWdJ9Mq",
   },
   {
     icon: "📦",
-    title: "Plastik Polymailer Tangan Pertama",
-    desc: "Plastik packing tebal, anti bocor & hemat waktu.",
-    link: "https://shopee.co.id/search?keyword=plastik%20polymailer%20packing",
+    title: "Plastik Polymailer & Bubble Wrap",
+    desc: "Bubble wrap & plastik packing tebal anti bocor.",
+    link: "https://s.shopee.co.id/qiH05JVm4",
   },
   {
     icon: "🏷️",
     title: "Lakban Fragile & Bening Grosir",
     desc: "Lakban perekat kuat untuk keamanan paket seller.",
-    link: "https://shopee.co.id/search?keyword=lakban%20fragile",
+    link: "https://s.shopee.co.id/qiH05JVm4",
   },
 ];
 
