@@ -70,6 +70,11 @@ const PLATFORMS: Record<Platform, PlatformConfig> = {
         desc: "Biaya proses Rp1.250 per pesanan selesai",
         url: "https://seller.shopee.co.id/edu/article/16055",
       },
+      {
+        title: "Ketentuan Pajak Penjual Shopee (PPh 0,5% & PPN)",
+        desc: "Aturan pemotongan PPh Final UMKM PP 55/2022 & PMK 164/2023",
+        url: "https://seller.shopee.co.id/edu/article/16055",
+      },
     ],
   },
   tokopedia: {
@@ -200,6 +205,8 @@ type Inputs = {
   affiliateOn: boolean;
   affiliateRate: number;
   affiliateVat: number;
+  taxOn: boolean;
+  taxRate: number;
   preorder: boolean;
   mallPayment: boolean;
   orderFee: number;
@@ -227,6 +234,8 @@ const initialInputs: Inputs = {
   affiliateOn: false,
   affiliateRate: 5,
   affiliateVat: 11,
+  taxOn: false,
+  taxRate: 0.5,
   preorder: false,
   mallPayment: false,
   orderFee: 1250,
@@ -253,11 +262,12 @@ function calcAtPrice(listingPrice: number, input: Inputs) {
       (input.affiliateRate / 100) *
       (1 + input.affiliateVat / 100)
     : 0;
+  const tax = input.taxOn ? transactionBase * (input.taxRate / 100) : 0;
   const preorder = input.preorder ? transactionBase * 0.03 : 0;
   const mallPayment = input.mallPayment ? transactionBase * 0.018 : 0;
   const processOrder = input.orderFee / quantity;
   const variableFees =
-    admin + ads + shipping + promo + affiliate + preorder + mallPayment;
+    admin + ads + shipping + promo + affiliate + tax + preorder + mallPayment;
   const productCosts =
     input.hpp + input.packing + input.operational + input.buffer;
   const netRevenue = transactionBase - variableFees - processOrder;
@@ -270,6 +280,7 @@ function calcAtPrice(listingPrice: number, input: Inputs) {
     shipping,
     promo,
     affiliate,
+    tax,
     preorder,
     mallPayment,
     processOrder,
@@ -798,6 +809,20 @@ Dihitung via HitungJual (${activePlatform.name})`;
                   </div>
                 )}
                 <Toggle
+                  checked={input.taxOn}
+                  onChange={(value) => patch("taxOn", value)}
+                  label="Pajak Penghasilan (PPh Final UMKM 0,5%)"
+                  description="Aturan PPh Final 0,5% dari peredaran bruto / omzet penjual (PP 55/2022)"
+                />
+                {input.taxOn && (
+                  <PercentInput
+                    label="Tarif PPh Final UMKM"
+                    value={input.taxRate}
+                    onChange={(value) => patch("taxRate", value)}
+                    hint="Default resmi: 0,5% dari omzet bruto"
+                  />
+                )}
+                <Toggle
                   checked={input.preorder}
                   onChange={(value) => patch("preorder", value)}
                   label="Produk Pre-order"
@@ -850,6 +875,7 @@ Dihitung via HitungJual (${activePlatform.name})`;
               {result.shipping > 0 && <p><span>{activePlatform.shippingLabel}</span><b>{rupiah.format(result.shipping)}</b></p>}
               {result.promo > 0 && <p><span>{activePlatform.promoLabel}</span><b>{rupiah.format(result.promo)}</b></p>}
               {result.affiliate > 0 && <p><span>Affiliate + PPN</span><b>{rupiah.format(result.affiliate)}</b></p>}
+              {result.tax > 0 && <p><span>Pajak PPh Final UMKM ({input.taxRate}%)</span><b>{rupiah.format(result.tax)}</b></p>}
               {result.preorder > 0 && <p><span>Pre-order</span><b>{rupiah.format(result.preorder)}</b></p>}
               {result.mallPayment > 0 && <p><span>Fitur Mall/Official</span><b>{rupiah.format(result.mallPayment)}</b></p>}
               <p><span>Proses pesanan per produk</span><b>{rupiah.format(result.processOrder)}</b></p>
